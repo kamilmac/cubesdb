@@ -22,7 +22,7 @@ type Tests []Test
 func TestMain(t *testing.T) {
 	tests := &Tests{
         {
-            description:        "Invalid user login",
+            description:        "Create print object",
             payload:            `{"username":"adm1n","password":"admin"}`,
             url:                "http://localhost:5010/api/v1/login",
             expectedBody:       `{"status":"error","message":"Login failed","data":{"token":""}}`,

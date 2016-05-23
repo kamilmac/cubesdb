@@ -27,6 +27,10 @@ func Init(path string) *DB {
 	return &database
 }
 
+func (db *DB) Close() {
+    db.core.Close()
+}
+
 func (db *DB) Put(bucket string, key string, value []byte) {
     err := db.core.Update(func(tx *bolt.Tx) error {
         b, err := tx.CreateBucketIfNotExists([]byte(bucket))
