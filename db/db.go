@@ -41,19 +41,27 @@ func (db *DB) Put(bucket string, key string, value []byte) {
 	}
 }
 
-func (db *DB) Get(bucket, key string) (v []byte) {
-    db.core.View(func(tx *bolt.Tx) error {
+func (db *DB) Get(bucket, key string) string {
+    var v []byte
+    err := db.core.View(func(tx *bolt.Tx) error {
 	    b := tx.Bucket([]byte(bucket))
-        v = b.Get([]byte(key))
+        if(b != nil) {
+            v = b.Get([]byte(key))
+        } 
 	    return nil
 	})
-	return
+    if err != nil {
+        return fmt.Sprintf("Couldn't fetch key: %v", key)
+    }
+	return string(v)
 }
 
 func (db *DB) Delete(bucket, key string) {
     db.core.Update(func(tx *bolt.Tx) error {
         b := tx.Bucket([]byte(bucket))
-        b.Delete([]byte(key))
+        if(b != nil) {
+            b.Delete([]byte(key))
+        }
         return nil
     })
 }
@@ -68,7 +76,6 @@ func (db *DB) GetAll(bucket string) []string {
                 return nil
             })
         }
-        fmt.Println("list: ", list)
 	    return nil
 	})
 	return list
