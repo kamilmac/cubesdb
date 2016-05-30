@@ -4,6 +4,7 @@ import (
     "fmt"
     "log"
     "time"
+    // "bytes"
     
     "github.com/satori/go.uuid"
 	"github.com/boltdb/bolt"
@@ -70,17 +71,17 @@ func (db *DB) Delete(bucket, key string) {
     })
 }
 
-func (db *DB) GetAll(bucket string) []string {
-    list := []string{}
+func (db *DB) GetAll(bucket string) [][]byte {
+    all := [][]byte{}
     db.core.View(func(tx *bolt.Tx) error {
 	    b := tx.Bucket([]byte(bucket))
         if(b != nil) {
             b.ForEach(func(k, v []byte) error {
-                list = append(list, string(v))
+                all = append(all, v)
                 return nil
             })
         }
 	    return nil
 	})
-	return list
+    return all
 }
