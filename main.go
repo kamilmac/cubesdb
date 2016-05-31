@@ -5,12 +5,15 @@ import (
     "net/http"
     "encoding/json"
 
+    "github.com/kamilmac/cubesdb/utils"
     "github.com/kamilmac/cubesdb/db"
     "goji.io"
 	"goji.io/pat"
 	"golang.org/x/net/context"
     "github.com/satori/go.uuid"
 )
+
+var authAddress = "http://userauth/api/v1/auth"
 
 type Cube struct {
     ID          string
@@ -21,6 +24,7 @@ type Cube struct {
 
 type App struct {
     db      *db.DB
+    utils   *Utils
 }
 
 type Request map[string]string
@@ -38,14 +42,33 @@ func main() {
     mux := goji.NewMux()
 	mux.HandleFuncC(pat.Post("/api/v1/getall"), app.getAll)
 	mux.HandleFuncC(pat.Post("/api/v1/set"), app.set)
+    mux.UseC(app.parseJSON)
     mux.UseC(app.validate)
 	http.ListenAndServe("localhost:5010", mux)
 }
 
 func (app *App) validate(inner goji.Handler) goji.Handler {
-	log.Print("A: called")
 	mw := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		log.Print("A: before")
+        token := // parse token from request
+        resp := app.utils.postJSON(authAddress, fmt.Sprintf(`{"token": "%v}`, token)
+		inner.ServeHTTPC(ctx, w, r)
+		log.Print("A: after")
+	}
+	return goji.HandlerFunc(mw)
+}
+
+func (app *App) parseJSON(inner goji.Handler) goji.Handler {
+	mw := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+		res := Response{}
+        req := Request{}
+        if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+            res["status"] = "error"
+            res["message"] = "Json req decoding error"
+        } else {
+            res["status"] = "success"
+            res["data"] = app.getAllCubes(req["username"])
+        }
 		inner.ServeHTTPC(ctx, w, r)
 		log.Print("A: after")
 	}
