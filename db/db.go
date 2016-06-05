@@ -4,7 +4,6 @@ import (
     "fmt"
     "log"
     "time"
-    // "bytes"
     
     "github.com/satori/go.uuid"
 	"github.com/boltdb/bolt"

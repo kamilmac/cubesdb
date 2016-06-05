@@ -3,7 +3,6 @@ package main
 import (
     "log"
     "net/http"
-    "fmt"
     "encoding/json"
 
     "golang.org/x/net/context"
@@ -37,8 +36,16 @@ func (app *App) getAll(ctx context.Context, w http.ResponseWriter, r *http.Reque
 func (app *App) set(ctx context.Context, w http.ResponseWriter, r *http.Request) {
     res := middleware.Response{}
     req, _ := ctx.Value("reqJSON").(middleware.Request)
-    fmt.Println("CONTEXT: ", req)
     app.createCube(req["username"], req["title"], req["suffix"]) 
+    res["status"] = "success"
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(res)
+}
+
+func (app *App) delete(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+    res := middleware.Response{}
+    req, _ := ctx.Value("reqJSON").(middleware.Request)
+    app.delCube(req["username"], req["id"]) 
     res["status"] = "success"
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(res)
@@ -55,8 +62,11 @@ func (app *App) createCube(username, title, suffix string) {
     if err != nil {
 		log.Println("createCube json marshall error:", err)
 	}
-    log.Println(string(cubeJSON))
     app.db.Put(cube.Username, cube.ID, cubeJSON)
+}
+
+func (app *App) delCube(username, id string) {
+    app.db.Delete(username, id)
 }
 
 func (app *App) getAllCubes(username string) []Cube {
@@ -82,10 +92,15 @@ func main() {
     getMux := goji.SubMux()
 	getMux.HandleFuncC(pat.Post(""), app.getAll)
     
+    delMux := goji.SubMux()
+    setMux.UseC(middleware.Validate)
+	delMux.HandleFuncC(pat.Post(""), app.delete)
+    
     rootMux := goji.NewMux()
     rootMux.UseC(middleware.ParseJSON)
 	rootMux.HandleC(pat.New("/api/v1/get"), getMux)
 	rootMux.HandleC(pat.New("/api/v1/set"), setMux)
+	rootMux.HandleC(pat.New("/api/v1/del"), delMux)
     
 	http.ListenAndServe("localhost:5010", rootMux)
 }
