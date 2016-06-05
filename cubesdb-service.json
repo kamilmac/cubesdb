@@ -1,23 +1,23 @@
 {
-  "apiVersion": "v1",
-  "kind": "Service",
-  "metadata": {
-    "name": "cubesdb",
-    "labels": {
-      "name": "cubesdb"
-    }
-  },
-  "spec": {
-    "type": "LoadBalancer",
-    "ports": [
-      {
-        "port": 80,
-        "targetPort": 5000,
-        "protocol": "TCP"
-      }
-    ],
-    "selector": {
-      "name": "cubesdb"
-    }
-  }
+	"apiVersion": "v1",
+	"kind": "Service",
+	"metadata": {
+		"name": "cubesdb",
+		"labels": {
+			"name": "cubesdb"
+		}
+	},
+	"spec": {
+		"type": "LoadBalancer",
+		"ports": [
+			{
+				"port": 80,
+				"targetPort": 5000,
+				"protocol": "TCP"
+			}
+		],
+		"selector": {
+			"name": "cubesdb"
+		}
+	}
 }
