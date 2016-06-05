@@ -13,15 +13,15 @@ import (
 	"goji.io/pat"
 )
 
+type App struct {
+    db           *db.DB
+}
+
 type Cube struct {
     ID          string
     Username    string
     Title       string
     Suffix      string
-}
-
-type App struct {
-    db           *db.DB
 }
 
 func (app *App) getAll(ctx context.Context, w http.ResponseWriter, r *http.Request) {
@@ -35,7 +35,7 @@ func (app *App) getAll(ctx context.Context, w http.ResponseWriter, r *http.Reque
 
 func (app *App) set(ctx context.Context, w http.ResponseWriter, r *http.Request) {
     res := middleware.Response{}
-    req, _ := ctx.Value("reqJSON").(middleware.Request)
+    req := ctx.Value("reqJSON").(middleware.Request)
     app.createCube(req["username"], req["title"], req["suffix"]) 
     res["status"] = "success"
     w.Header().Set("Content-Type", "application/json")
@@ -44,7 +44,7 @@ func (app *App) set(ctx context.Context, w http.ResponseWriter, r *http.Request)
 
 func (app *App) delete(ctx context.Context, w http.ResponseWriter, r *http.Request) {
     res := middleware.Response{}
-    req, _ := ctx.Value("reqJSON").(middleware.Request)
+    req := ctx.Value("reqJSON").(middleware.Request)
     app.delCube(req["username"], req["id"]) 
     res["status"] = "success"
     w.Header().Set("Content-Type", "application/json")
@@ -102,5 +102,5 @@ func main() {
 	rootMux.HandleC(pat.New("/api/v1/set"), setMux)
 	rootMux.HandleC(pat.New("/api/v1/del"), delMux)
     
-	http.ListenAndServe("localhost:5010", rootMux)
+	http.ListenAndServe("localhost:5000", rootMux)
 }
