@@ -4,6 +4,7 @@ import (
     "log"
     "net/http"
     "encoding/json"
+    "fmt"
 
     "github.com/kamilmac/cubesdb/utils"
     "github.com/kamilmac/cubesdb/db"
@@ -13,7 +14,7 @@ import (
     "github.com/satori/go.uuid"
 )
 
-var authAddress = "http://userauth/api/v1/auth"
+var authAddress = "http://130.211.103.177/api/v1/auth"
 
 type Cube struct {
     ID          string
@@ -24,7 +25,6 @@ type Cube struct {
 
 type App struct {
     db      *db.DB
-    utils   *Utils
 }
 
 type Request map[string]string
@@ -49,11 +49,10 @@ func main() {
 
 func (app *App) validate(inner goji.Handler) goji.Handler {
 	mw := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-		log.Print("A: before")
-        token := // parse token from request
-        resp := app.utils.postJSON(authAddress, fmt.Sprintf(`{"token": "%v}`, token)
+        req := ctx.Value("reqJSON")
+        resp := utils.PostJSON(authAddress, fmt.Sprintf(`{"token": "%v"}`, req["token"]))
+        fmt.Println(string(resp))
 		inner.ServeHTTPC(ctx, w, r)
-		log.Print("A: after")
 	}
 	return goji.HandlerFunc(mw)
 }
@@ -62,43 +61,34 @@ func (app *App) parseJSON(inner goji.Handler) goji.Handler {
 	mw := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		res := Response{}
         req := Request{}
+        w.Header().Set("Content-Type", "application/json")        
         if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
             res["status"] = "error"
             res["message"] = "Json req decoding error"
-        } else {
-            res["status"] = "success"
-            res["data"] = app.getAllCubes(req["username"])
+            json.NewEncoder(w).Encode(res)
+            return
         }
-		inner.ServeHTTPC(ctx, w, r)
-		log.Print("A: after")
+        newCtx := context.WithValue(ctx, "reqJSON", req)
+        inner.ServeHTTPC(newCtx, w, r)
 	}
 	return goji.HandlerFunc(mw)
 }
 
 func (app *App) getAll(ctx context.Context, w http.ResponseWriter, r *http.Request) {
     res := Response{}
-    req := Request{}
-    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-        res["status"] = "error"
-        res["message"] = "Json req decoding error"
-    } else {
-        res["status"] = "success"
-        res["data"] = app.getAllCubes(req["username"])
-    }
+    req, _ := ctx.Value("reqJSON").(map[string]string)
+    res["status"] = "success"
+    res["data"] = app.getAllCubes(req["username"])
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(res)
 }
 
 func (app *App) set(ctx context.Context, w http.ResponseWriter, r *http.Request) {
     res := Response{}
-    req := Request{}
-    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-        res["status"] = "error"
-        res["message"] = "Json req decoding error"
-    } else {
-        app.createCube(req["username"], req["title"], req["suffix"])    
-        res["status"] = "success"
-    }
+    req := ctx.Value("reqJSON")
+    fmt.Println("CONTEXT: ", req)
+    // app.createCube(req["username"], req["title"], req["suffix"]) 
+    res["status"] = "success"
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(res)
 }

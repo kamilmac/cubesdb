@@ -1,15 +1,18 @@
 package utils
 
 import (
-    
+    "net/http"
+    "bytes"
+    "fmt"
+    "time"
+    "io/ioutil"
 )
 
-type Utils interface{}
-
-func (u *Utils) postJSON(url, payload string) []byte {
+func PostJSON(url, payload string) []byte {
+    fmt.Println(url, payload)
     req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(payload)))
     if err != nil {
-        return fmt.Sprintln("post JSON request parse err: ", err)
+        fmt.Println("post JSON request parse err: ", err)
     }
     req.Header.Set("Content-Type", "application/json")
     client := &http.Client{
@@ -17,7 +20,7 @@ func (u *Utils) postJSON(url, payload string) []byte {
     }
     resp, err := client.Do(req)
     if err != nil {
-        return fmt.Sprintln("post JSON response err: ", err)
+        fmt.Println("post JSON response err: ", err)
     }
     defer resp.Body.Close()
     body, _ := ioutil.ReadAll(resp.Body)
