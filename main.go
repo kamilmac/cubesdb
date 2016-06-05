@@ -74,10 +74,18 @@ func main() {
     app := App{}
     app.db = db.Init("./cubes.db")
     defer app.db.Close()
-    mux := goji.NewMux()
-	mux.HandleFuncC(pat.Post("/api/v1/getall"), app.getAll)
-	mux.HandleFuncC(pat.Post("/api/v1/set"), app.set)
-    mux.UseC(middleware.ParseJSON)
-    mux.UseC(middleware.Validate)
-	http.ListenAndServe("localhost:5010", mux)
+    
+    setMux := goji.SubMux()
+    setMux.UseC(middleware.Validate)
+	setMux.HandleFuncC(pat.Post(""), app.set)
+    
+    getMux := goji.SubMux()
+	getMux.HandleFuncC(pat.Post(""), app.getAll)
+    
+    rootMux := goji.NewMux()
+    rootMux.UseC(middleware.ParseJSON)
+	rootMux.HandleC(pat.New("/api/v1/get"), getMux)
+	rootMux.HandleC(pat.New("/api/v1/set"), setMux)
+    
+	http.ListenAndServe("localhost:5010", rootMux)
 }
