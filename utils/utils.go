@@ -5,11 +5,10 @@ import (
     "bytes"
     "fmt"
     "time"
-    "io/ioutil"
+    "encoding/json"
 )
 
-func PostJSON(url, payload string) []byte {
-    fmt.Println(url, payload)
+func PostJSON(url, payload string) map[string]interface{} {
     req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(payload)))
     if err != nil {
         fmt.Println("post JSON request parse err: ", err)
@@ -23,6 +22,9 @@ func PostJSON(url, payload string) []byte {
         fmt.Println("post JSON response err: ", err)
     }
     defer resp.Body.Close()
-    body, _ := ioutil.ReadAll(resp.Body)
-    return body
+    var bodyJSON map[string]interface{} 
+    if err := json.NewDecoder(resp.Body).Decode(&bodyJSON); err != nil {
+        fmt.Println("Couldn't parse bodyJSON response: ", err)
+    }
+    return bodyJSON
 }
