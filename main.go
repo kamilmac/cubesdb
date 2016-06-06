@@ -107,5 +107,5 @@ func main() {
 	rootMux.HandleC(pat.New("/api/v1/del"), delMux)
     
     log.Println("Running on port 5000")
-	http.ListenAndServe("localhost:5000", rootMux)
+	http.ListenAndServe(":5000", rootMux)
 }

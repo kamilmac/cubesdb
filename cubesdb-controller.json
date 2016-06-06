@@ -2,27 +2,27 @@
     "apiVersion": "v1",
     "kind": "ReplicationController",
     "metadata": {
-        "name": "cubesdb-v2",
+        "name": "cubesdb-v3",
         "labels": {
-            "name": "cubesdb-v2"
+            "name": "cubesdb-v3"
         }
     },
     "spec": {
         "replicas": 1,
         "selector": {
-            "name": "cubesdb-v2"
+            "name": "cubesdb-v3"
         },
         "template": {
             "metadata": {
                 "labels": {
-                    "name": "cubesdb-v2"
+                    "name": "cubesdb-v3"
                 }
             },
             "spec": {
                 "containers": [
                     {
-                        "image": "gcr.io/polished-vault-462/cubes_db:v2",
-                        "name": "cubesdb",
+                        "image": "gcr.io/polished-vault-462/cubes_db:v3",
+                        "name": "cubesdb-v3",
                         "volumeMounts": [
                             {
                                 "mountPath": "/storage",
