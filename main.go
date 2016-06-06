@@ -81,8 +81,12 @@ func (app *App) getAllCubes(username string) []Cube {
 }
 
 func main() {
+    log.Println("Starting app")    
     app := App{}
-    app.db = db.Init("./cubes.db")
+    log.Println("initiating db")
+    app.db = db.Init("/storage/cubes.db")
+    log.Println("initiating db done")
+
     defer app.db.Close()
     
     setMux := goji.SubMux()
@@ -102,5 +106,6 @@ func main() {
 	rootMux.HandleC(pat.New("/api/v1/set"), setMux)
 	rootMux.HandleC(pat.New("/api/v1/del"), delMux)
     
+    log.Println("Running on port 5000")
 	http.ListenAndServe("localhost:5000", rootMux)
 }

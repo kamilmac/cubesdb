@@ -1,0 +1,51 @@
+{
+    "apiVersion": "v1",
+    "kind": "ReplicationController",
+    "metadata": {
+        "name": "cubesdb-v2",
+        "labels": {
+            "name": "cubesdb-v2"
+        }
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "name": "cubesdb-v2"
+        },
+        "template": {
+            "metadata": {
+                "labels": {
+                    "name": "cubesdb-v2"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "gcr.io/polished-vault-462/cubes_db:v2",
+                        "name": "cubesdb",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/storage",
+                                "name": "storage1"
+                            }
+                        ],
+                        "ports": [
+                            {
+                                "containerPort": 5000
+                            }
+                        ]
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "storage1",
+                        "gcePersistentDisk": {
+                            "pdName": "storage1",
+                            "fsType": "ext4"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
