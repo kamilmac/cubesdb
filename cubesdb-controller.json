@@ -21,7 +21,7 @@
             "spec": {
                 "containers": [
                     {
-                        "image": "gcr.io/polished-vault-462/cubes_db:v3",
+                        "image": "gcr.io/polished-vault-462/cubes_db:v4",
                         "name": "cubesdb-v3",
                         "volumeMounts": [
                             {

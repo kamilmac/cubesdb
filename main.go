@@ -97,7 +97,7 @@ func main() {
 	getMux.HandleFuncC(pat.Post(""), app.getAll)
     
     delMux := goji.SubMux()
-    setMux.UseC(middleware.Validate)
+    delMux.UseC(middleware.Validate)
 	delMux.HandleFuncC(pat.Post(""), app.delete)
     
     rootMux := goji.NewMux()

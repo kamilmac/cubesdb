@@ -36,7 +36,8 @@ func ParseJSON(inner goji.Handler) goji.Handler {
 	mw := func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 		res := Response{}
         req := Request{}
-        w.Header().Set("Content-Type", "application/json")        
+        w.Header().Set("Access-Control-Allow-Origin", "*")     
+        w.Header().Set("Content-Type", "application/json")
         if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
             res["status"] = "error"
             res["message"] = "Json req decoding error"
